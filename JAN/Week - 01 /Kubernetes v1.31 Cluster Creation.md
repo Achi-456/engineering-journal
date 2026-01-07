@@ -290,7 +290,7 @@ Run:
 ansible-playbook -i hosts.ini kube-install.yml -K
 ```
 
-### 5. Control plane bootstrap (run on kubeadm-k8s-m1/2)
+### 5. Control plane bootstrap (run on kubeadm-k8s-m1)
 ```bash
 sudo kubeadm init \
   --pod-network-cidr=10.244.0.0/16 \
@@ -330,21 +330,6 @@ sudo docker tag docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1 ghcr.io/fla
 
 Optional: automate the pre-pull/tag with Ansible (run from the jumphost):
 ```bash
-cat > prepare-images.yml <<'EOF'
----
-- name: Pre-pull Flannel Images
-  hosts: k8s_nodes
-  become: yes
-  tasks:
-    - name: Pull and Retag Flannel images
-      shell: |
-        docker pull docker.io/flannel/flannel:v0.27.4
-        docker tag docker.io/flannel/flannel:v0.27.4 ghcr.io/flannel-io/flannel:v0.27.4
-        docker pull docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1
-        docker tag docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1 ghcr.io/flannel-io/flannel-cni-plugin:v1.8.0-flannel1
-      args:
-        warn: false
-EOF
 ansible-playbook -i hosts.ini prepare-images.yml -K
 ```
 

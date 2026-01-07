@@ -88,8 +88,13 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 Record the join command printed (append `--cri-socket unix:///var/run/cri-dockerd.sock`).
 
 ### 6) Join workers (on each worker)
+If this node was part of another cluster earlier, reset it first:
 ```bash
-sudo kubeadm reset -f --cri-socket unix:///var/run/cri-dockerd.sock  # if reusing node
+sudo kubeadm reset -f --cri-socket unix:///var/run/cri-dockerd.sock
+```
+
+Then join with the current token/hash:
+```bash
 sudo kubeadm join 172.25.199.161:6443 \
   --token <token> \
   --discovery-token-ca-cert-hash <sha256:hash> \

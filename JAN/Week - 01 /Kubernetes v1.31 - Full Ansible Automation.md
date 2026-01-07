@@ -53,7 +53,11 @@ ansible-playbook -i hosts.ini prepare-images.yml -K
 
 ### 5) Bootstrap the control plane (Ansible ad-hoc)
 ```bash
-ansible -i hosts.ini control_plane -b -m shell -a "kubeadm init --pod-network-cidr=10.244.0.0/16 --cri-socket unix:///var/run/cri-dockerd.sock --ignore-preflight-errors=SystemVerification"
+ansible -i hosts.ini control_plane -b -m shell -a "\
+kubeadm init \
+  --pod-network-cidr=10.244.0.0/16 \
+  --cri-socket unix:///var/run/cri-dockerd.sock \
+  --ignore-preflight-errors=SystemVerification"
 
 # Copy admin.conf back to the jumphost for kubectl access
 ansible -i hosts.ini control_plane -b -m fetch -a "src=/etc/kubernetes/admin.conf dest=~/k8s-deploy/admin.conf flat=yes"
@@ -65,12 +69,17 @@ Capture the join command from the init output (append `--cri-socket unix:///var/
 ### 6) Join workers (Ansible ad-hoc)
 Replace token/hash with current values:
 ```bash
-ansible -i hosts.ini workers -b -m shell -a "kubeadm join 172.25.199.161:6443 --token <token> --discovery-token-ca-cert-hash <sha256:hash> --cri-socket unix:///var/run/cri-dockerd.sock --ignore-preflight-errors=SystemVerification"
+ansible -i hosts.ini workers -b -m shell -a "\
+kubeadm join 172.25.199.161:6443 \
+  --token <token> \
+  --discovery-token-ca-cert-hash <sha256:hash> \
+  --cri-socket unix:///var/run/cri-dockerd.sock \
+  --ignore-preflight-errors=SystemVerification"
 ```
 
 ### 7) Deploy Flannel CNI
 ```bash
-ansible -i hosts.ini control_plane -b -m command -a "kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml" --become-user root
+ansible -i hosts.ini control_plane -b -m command -a "kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml"
 ```
 
 ### 8) Verify
