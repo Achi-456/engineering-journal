@@ -290,7 +290,7 @@ Run:
 ansible-playbook -i hosts.ini kube-install.yml -K
 ```
 
-### 5. Control plane bootstrap (run on kubeadm-k8s-m1)
+### 5. Control plane bootstrap (run on kubeadm-k8s-m1/2)
 ```bash
 sudo kubeadm init \
   --pod-network-cidr=10.244.0.0/16 \
