@@ -328,7 +328,34 @@ sudo docker tag docker.io/flannel/flannel:v0.27.4 ghcr.io/flannel-io/flannel:v0.
 sudo docker tag docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1 ghcr.io/flannel-io/flannel-cni-plugin:v1.8.0-flannel1
 ```
 
+Optional: automate the pre-pull/tag with Ansible (run from the jumphost):
+```bash
+cat > prepare-images.yml <<'EOF'
+---
+- name: Pre-pull Flannel Images
+  hosts: k8s_nodes
+  become: yes
+  tasks:
+    - name: Pull and Retag Flannel images
+      shell: |
+        docker pull docker.io/flannel/flannel:v0.27.4
+        docker tag docker.io/flannel/flannel:v0.27.4 ghcr.io/flannel-io/flannel:v0.27.4
+        docker pull docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1
+        docker tag docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1 ghcr.io/flannel-io/flannel-cni-plugin:v1.8.0-flannel1
+      args:
+        warn: false
+EOF
+ansible-playbook -i hosts.ini prepare-images.yml -K
+```
+
 On the control plane:
 ```bash
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+```
+
+### 8. Final verification
+From the control plane, confirm the cluster is healthy:
+```bash
+kubectl get nodes
+kubectl get pods -A
 ```

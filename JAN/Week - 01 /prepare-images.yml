@@ -1,0 +1,13 @@
+---
+- name: Pre-pull Flannel Images
+  hosts: k8s_nodes
+  become: yes
+  tasks:
+    - name: Pull and Retag Flannel images
+      shell: |
+        docker pull docker.io/flannel/flannel:v0.27.4
+        docker tag docker.io/flannel/flannel:v0.27.4 ghcr.io/flannel-io/flannel:v0.27.4
+        docker pull docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1
+        docker tag docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1 ghcr.io/flannel-io/flannel-cni-plugin:v1.8.0-flannel1
+      args:
+        warn: false
