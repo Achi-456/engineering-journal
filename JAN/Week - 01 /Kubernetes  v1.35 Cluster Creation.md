@@ -36,7 +36,7 @@ ssh-copy-id worker2
 ### 3. Ansible setup on jumphost
 ```bash
 sudo dnf install -y python3.9 python3-pip ansible-core
-mkdir -p /home/achi456/k8s-deploy && cd /home/achi456/k8s-deploy
+mkdir -p ~/k8s-deploy && cd ~/k8s-deploy
 ```
 
 `hosts.ini`
@@ -96,7 +96,7 @@ ansible_become_method=sudo
         dest: /etc/yum.repos.d/local-baseos.repo
         content: |
           [local-baseos]
-          name=AlmaLinux 9 Local - BaseOS
+          name=RHEL 9 Local - BaseOS
           baseurl=file:///mnt/iso/BaseOS
           enabled=1
           gpgcheck=0
@@ -106,13 +106,16 @@ ansible_become_method=sudo
         dest: /etc/yum.repos.d/local-appstream.repo
         content: |
           [local-appstream]
-          name=AlmaLinux 9 Local - AppStream
+          name=RHEL 9 Local - AppStream
           baseurl=file:///mnt/iso/AppStream
           enabled=1
           gpgcheck=0
 
-    - name: Clear DNF cache and verify local repos
-      command: dnf clean all && dnf makecache
+    - name: Clear DNF cache
+      command: dnf clean all
+
+    - name: Rebuild DNF cache
+      command: dnf makecache
 
     - name: Disable Swap immediately
       command: swapoff -a
