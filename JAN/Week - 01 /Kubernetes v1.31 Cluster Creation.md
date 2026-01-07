@@ -290,7 +290,7 @@ Run:
 ansible-playbook -i hosts.ini kube-install.yml -K
 ```
 
-### 5. Control plane bootstrap (run on kubeadm-k8s-m1/2)
+### 5. Control plane bootstrap (run on kubeadm-k8s-m1)
 ```bash
 sudo kubeadm init \
   --pod-network-cidr=10.244.0.0/16 \
@@ -328,7 +328,19 @@ sudo docker tag docker.io/flannel/flannel:v0.27.4 ghcr.io/flannel-io/flannel:v0.
 sudo docker tag docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1 ghcr.io/flannel-io/flannel-cni-plugin:v1.8.0-flannel1
 ```
 
+Optional: automate the pre-pull/tag with Ansible (run from the jumphost):
+```bash
+ansible-playbook -i hosts.ini prepare-images.yml -K
+```
+
 On the control plane:
 ```bash
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+```
+
+### 8. Final verification
+From the control plane, confirm the cluster is healthy:
+```bash
+kubectl get nodes
+kubectl get pods -A
 ```

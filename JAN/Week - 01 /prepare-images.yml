@@ -1,0 +1,16 @@
+---
+- name: Pre-pull Flannel Images
+  hosts: k8s_nodes
+  become: yes
+  tasks:
+    - name: Pull flannel base image
+      command: ["docker", "pull", "docker.io/flannel/flannel:v0.27.4"]
+
+    - name: Tag flannel image for ghcr.io
+      command: ["docker", "tag", "docker.io/flannel/flannel:v0.27.4", "ghcr.io/flannel-io/flannel:v0.27.4"]
+
+    - name: Pull flannel CNI plugin image
+      command: ["docker", "pull", "docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1"]
+
+    - name: Tag flannel CNI plugin for ghcr.io
+      command: ["docker", "tag", "docker.io/flannel/flannel-cni-plugin:v1.8.0-flannel1", "ghcr.io/flannel-io/flannel-cni-plugin:v1.8.0-flannel1"]
