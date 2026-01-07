@@ -245,7 +245,7 @@ ansible_become_method=sudo
 
 Run:
 ```bash
-ansible-playbook -i hosts.ini prepare_nodes.yml
+ansible-playbook -i hosts.ini prepare_nodes.yml -K
 ```
 
 ### 4. Install Kubernetes packages with Ansible
@@ -265,6 +265,7 @@ ansible-playbook -i hosts.ini prepare_nodes.yml
           baseurl=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/
           enabled=1
           gpgcheck=1
+          repo_gpgcheck=1
           gpgkey=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
           exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
 
