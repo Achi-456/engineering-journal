@@ -134,9 +134,12 @@ ansible_become_method=sudo
       ignore_errors: yes
 
     - name: Load Kernel Modules for Container Networking
-      shell: |
-        modprobe overlay
-        modprobe br_netfilter
+      modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - overlay
+        - br_netfilter
 
     - name: Persist Modules on Boot
       copy:
@@ -145,14 +148,29 @@ ansible_become_method=sudo
           overlay
           br_netfilter
 
-    - name: Apply Sysctl settings
-      shell: |
-        sysctl -w net.bridge.bridge-nf-call-iptables=1
-        sysctl -w net.bridge.bridge-nf-call-ip6tables=1
-        sysctl -w net.ipv4.ip_forward=1
-        echo "net.bridge.bridge-nf-call-iptables = 1" > /etc/sysctl.d/k8s.conf
-        echo "net.bridge.bridge-nf-call-ip6tables = 1" >> /etc/sysctl.d/k8s.conf
-        echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/k8s.conf
+    - name: Ensure net.bridge.bridge-nf-call-iptables is set
+      sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        value: '1'
+        state: present
+        reload: yes
+        sysctl_file: /etc/sysctl.d/k8s.conf
+
+    - name: Ensure net.bridge.bridge-nf-call-ip6tables is set
+      sysctl:
+        name: net.bridge.bridge-nf-call-ip6tables
+        value: '1'
+        state: present
+        reload: yes
+        sysctl_file: /etc/sysctl.d/k8s.conf
+
+    - name: Ensure net.ipv4.ip_forward is set
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        state: present
+        reload: yes
+        sysctl_file: /etc/sysctl.d/k8s.conf
 
     - name: Stop and Disable Firewalld
       command: systemctl disable --now firewalld
@@ -238,16 +256,6 @@ ansible-playbook -i hosts.ini prepare_nodes.yml
   hosts: k8s_nodes
   become: yes
   tasks:
-    - name: Disable SELinux immediately
-      command: setenforce 0
-      ignore_errors: yes
-
-    - name: Make SELinux permissive permanently
-      lineinfile:
-        path: /etc/selinux/config
-        regexp: '^SELINUX=enforcing'
-        line: 'SELINUX=permissive'
-
     - name: Create Kubernetes repository file
       copy:
         dest: /etc/yum.repos.d/kubernetes.repo
